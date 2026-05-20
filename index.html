@@ -1,0 +1,3410 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ВТБ — Резервная карта</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --vtb-blue: #0066CC;
+    --vtb-blue-dark: #004FA3;
+    --vtb-blue-light: #E8F0FB;
+    --vtb-navy: #001A3C;
+    --accent-green: #00B67A;
+    --accent-mint: #DBF1E6;
+    --accent-mint-deep: #006B47;
+    --accent-orange: #FF6B2B;
+    --accent-yellow: #FFB800;
+    --text-primary: #14161A;
+    --text-secondary: #4F5662;
+    --text-muted: #8A91A0;
+    --text-soft: #B6BCC7;
+    --bg-page: #F0F4F8;
+    --bg-card: #FFFFFF;
+    --bg-soft: #F4F5F7;
+    --border: #E4E7EC;
+    --border-light: #EDEFF2;
+    --dark-icon-bg: #15171B;
+    --radius: 18px;
+    --radius-sm: 12px;
+    --font: 'Manrope', sans-serif;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg-page);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 24px 16px 40px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* PROTOTYPE LAYOUT (phone + demo panel) */
+  .prototype-stage {
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .demo-panel {
+    width: 270px;
+    background: #fff;
+    border-radius: 18px;
+    padding: 18px 16px 18px;
+    box-shadow: 0 4px 16px rgba(0,0,0,.08);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    font-size: 13px;
+    align-self: flex-start;
+    position: sticky;
+    top: 24px;
+  }
+  .demo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .demo-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  .demo-hint {
+    font-size: 10.5px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: .4px;
+  }
+  .demo-status {
+    background: var(--bg-soft);
+    border-radius: 10px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .demo-status-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12.5px;
+    color: var(--text-secondary);
+  }
+  .demo-status-row strong {
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  .demo-section {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .demo-section-title {
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: var(--text-muted);
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .demo-btn {
+    padding: 9px 12px;
+    background: var(--bg-soft);
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all .12s;
+    text-align: left;
+  }
+  .demo-btn:hover { background: #EAEDF1; }
+  .demo-btn:active { transform: scale(.98); }
+  .demo-btn.primary {
+    background: var(--vtb-blue);
+    border-color: var(--vtb-blue);
+    color: #fff;
+  }
+  .demo-btn.primary:hover { background: var(--vtb-blue-dark); }
+
+  /* TOAST */
+  .demo-toast {
+    position: absolute;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-12px);
+    background: var(--text-primary);
+    color: #fff;
+    padding: 11px 16px;
+    border-radius: 12px;
+    font-size: 13px;
+    line-height: 1.4;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s, transform .25s;
+    z-index: 200;
+    box-shadow: 0 8px 24px rgba(0,0,0,.28);
+    max-width: 320px;
+    text-align: center;
+  }
+  .demo-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  .demo-toast strong { color: #FFD58E; font-weight: 700; }
+
+  /* PURCHASE & SUCCESS MODALS */
+  .purchase-sheet {
+    padding-bottom: 18px;
+  }
+  .purchase-mock {
+    padding: 4px 24px 12px;
+    text-align: center;
+  }
+  .purchase-merchant {
+    font-size: 14.5px;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+  .purchase-amount {
+    font-size: 38px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -1px;
+    line-height: 1;
+    margin-bottom: 14px;
+  }
+  .purchase-card-info {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: var(--bg-soft);
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+  .purchase-warning {
+    margin-top: 18px;
+    padding: 12px 14px;
+    background: #FFF4E0;
+    border: 1px solid #FFD89A;
+    border-radius: 12px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    text-align: left;
+  }
+  .purchase-actions {
+    display: flex;
+    gap: 10px;
+    padding: 8px 24px 4px;
+  }
+  .modal-btn-primary, .modal-btn-secondary {
+    flex: 1;
+    padding: 14px;
+    border: none;
+    border-radius: 14px;
+    font-family: var(--font);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .modal-btn-primary {
+    background: var(--vtb-blue);
+    color: #fff;
+  }
+  .modal-btn-primary:hover { background: var(--vtb-blue-dark); }
+  .modal-btn-primary:active { transform: scale(.98); }
+  .modal-btn-secondary {
+    background: var(--bg-soft);
+    color: var(--text-primary);
+  }
+  .modal-btn-secondary:hover { background: #EAEDF1; }
+
+  .success-sheet {
+    padding-bottom: 20px;
+    text-align: center;
+  }
+  .success-icon {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: var(--accent-green);
+    display: flex; align-items: center; justify-content: center;
+    margin: 4px auto 14px;
+    box-shadow: 0 8px 20px rgba(0,182,122,.3);
+  }
+  .success-icon svg { width: 28px; height: 28px; stroke: #fff; stroke-width: 3; fill: none; }
+  .success-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+  }
+  .success-amount {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -.5px;
+    margin-bottom: 6px;
+  }
+  .success-meta {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin: 0 24px 18px;
+    line-height: 1.4;
+  }
+  .success-after {
+    margin: 0 24px 14px;
+    background: var(--bg-soft);
+    border-radius: 12px;
+    padding: 12px 14px;
+  }
+  .success-after-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    font-size: 13.5px;
+    color: var(--text-secondary);
+  }
+  .success-after-row strong { color: var(--text-primary); font-weight: 700; }
+  .success-comment {
+    margin: 0 24px 18px;
+    padding: 12px 14px;
+    background: var(--vtb-blue-light);
+    border-radius: 12px;
+    font-size: 13px;
+    color: var(--vtb-blue);
+    line-height: 1.45;
+  }
+  .success-btn {
+    width: calc(100% - 48px);
+    margin: 0 24px;
+  }
+  .success-btn + .success-btn { margin-top: 8px; }
+
+  /* NAV TABS (под прототипом) */
+  .nav-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+    max-width: 520px;
+    margin: 24px auto 0;
+    background: #fff;
+    border-radius: 14px;
+    padding: 6px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.08);
+  }
+  .nav-tab {
+    padding: 8px 14px;
+    border-radius: 10px;
+    border: none;
+    background: transparent;
+    font-family: var(--font);
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all .2s;
+    white-space: nowrap;
+  }
+  .nav-tab.active {
+    background: var(--vtb-blue);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(0,102,204,.35);
+  }
+
+  /* PHONE SHELL */
+  .phone {
+    width: 390px;
+    min-height: 820px;
+    background: var(--bg-card);
+    border-radius: 44px;
+    box-shadow: 0 24px 64px rgba(0,26,60,.18), 0 4px 16px rgba(0,0,0,.08);
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* STATUS BAR */
+  .statusbar {
+    background: var(--vtb-navy);
+    padding: 14px 24px 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .statusbar-icons { display: flex; gap: 6px; align-items: center; }
+  .statusbar-icons svg { width: 16px; height: 16px; fill: #fff; }
+
+  /* TOP BAR */
+  .topbar {
+    background: var(--vtb-navy);
+    padding: 8px 20px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    color: #fff;
+  }
+  .topbar-title { font-size: 17px; font-weight: 600; }
+  .topbar-actions {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    gap: 8px;
+  }
+  .topbar-icon {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.12);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    border: none;
+    color: #fff;
+    font-size: 17px;
+  }
+
+  /* SCREEN */
+  .screen {
+    display: none;
+    flex-direction: column;
+    height: calc(100% - 76px);
+    overflow-y: auto;
+    scrollbar-width: none;
+    background: #fff;
+  }
+  .screen::-webkit-scrollbar { display: none; }
+  .screen.active { display: flex; }
+
+  /* === ACCOUNT (MAIN) SCREEN === */
+  .acc-subheader {
+    display: flex;
+    align-items: flex-start;
+    padding: 14px 18px 6px;
+    gap: 6px;
+    background: #fff;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .acc-back, .acc-edit {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-primary);
+    font-size: 22px;
+    padding: 4px;
+    line-height: 1;
+  }
+  .acc-edit { font-size: 18px; }
+  .acc-subheader-center {
+    flex: 1;
+    text-align: center;
+    padding: 4px 0 6px;
+  }
+  .acc-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.3;
+  }
+  .acc-subtitle {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .acc-balance {
+    text-align: center;
+    font-size: 42px;
+    font-weight: 700;
+    color: var(--text-primary);
+    padding: 22px 20px 18px;
+    letter-spacing: -1.2px;
+    line-height: 1;
+  }
+
+  .acc-cards-row {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding: 0 20px;
+    margin-bottom: 22px;
+  }
+  .acc-chip {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 6px 14px 6px 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+    cursor: pointer;
+  }
+  .mir-logo {
+    background: linear-gradient(135deg, #007F5F 0%, #003366 100%);
+    color: #fff;
+    font-size: 9px;
+    font-weight: 800;
+    padding: 4px 7px;
+    border-radius: 4px;
+    letter-spacing: .5px;
+  }
+  .acc-chip-add {
+    background: #fff;
+    border: 1.5px dashed var(--border);
+    border-radius: 10px;
+    width: 44px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 20px;
+    cursor: pointer;
+  }
+
+  .acc-actions {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    padding: 0 20px 24px;
+  }
+  .acc-action {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+  }
+  .acc-action-btn {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: var(--vtb-blue);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 18px rgba(0,102,204,.4);
+    transition: transform .15s;
+  }
+  .acc-action-btn:active { transform: scale(.93); }
+  .acc-action-btn svg { width: 22px; height: 22px; stroke: #fff; fill: none; stroke-width: 2.4; }
+  .acc-action-label {
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  /* MINPAY BANNER */
+  .minpay-banner {
+    margin: 0 16px 18px;
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    cursor: pointer;
+    transition: transform .15s, background .25s;
+    border: 1px solid transparent;
+  }
+  .minpay-banner.pending {
+    background: #FFF4E0;
+    border-color: #FFD89A;
+  }
+  .minpay-banner.paid {
+    background: var(--accent-mint);
+    border-color: transparent;
+  }
+  .minpay-banner.zero {
+    background: #E6F4ED;
+    border-color: #BCDFCC;
+  }
+  .minpay-banner:active { transform: scale(.99); }
+  .minpay-banner-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+  .minpay-check {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--accent-green);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .minpay-check svg { width: 12px; height: 12px; stroke: #fff; stroke-width: 3; fill: none; }
+  .minpay-icon {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: #D49500;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .minpay-icon svg { width: 13px; height: 13px; stroke: #fff; stroke-width: 2.4; fill: none; }
+  .minpay-title {
+    font-size: 15.5px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.3;
+  }
+  .minpay-text {
+    font-size: 13.5px;
+    color: var(--text-secondary);
+    line-height: 1.45;
+    margin: 6px 0 12px;
+  }
+  .minpay-text strong { color: var(--text-primary); font-weight: 700; }
+  .minpay-link {
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .minpay-banner.pending .minpay-link { color: #8B5E00; }
+  .minpay-banner.paid    .minpay-link { color: var(--accent-mint-deep); }
+  .minpay-banner.zero    .minpay-link { color: var(--accent-mint-deep); }
+
+  /* ACCOUNT MENU (with dark squared icons) */
+  .acc-menu {
+    padding: 4px 20px 20px;
+    border-top: 1px solid var(--border-light);
+    margin-top: 4px;
+  }
+  .acc-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 0;
+    cursor: pointer;
+    transition: opacity .15s;
+  }
+  .acc-menu-item:active { opacity: .6; }
+  .menu-dark-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--dark-icon-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .menu-dark-icon svg {
+    width: 18px;
+    height: 18px;
+    fill: #fff;
+  }
+  .acc-menu-text { flex: 1; }
+  .acc-menu-title {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.25;
+  }
+  .acc-menu-sub {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  /* === MODAL (О счёте) === */
+  .modal-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(20, 22, 26, .55);
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s;
+  }
+  .modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .modal-sheet {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: #fff;
+    border-radius: 24px 24px 0 0;
+    padding: 12px 0 28px;
+    transform: translateY(100%);
+    transition: transform .3s cubic-bezier(.4,0,.2,1);
+    max-height: 80%;
+    overflow-y: auto;
+  }
+  .modal-overlay.active .modal-sheet {
+    transform: translateY(0);
+  }
+  .modal-handle {
+    width: 36px; height: 4px;
+    background: #C4CCD6;
+    border-radius: 2px;
+    margin: 0 auto 18px;
+  }
+  .modal-title {
+    padding: 0 20px 18px;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -.3px;
+  }
+  .modal-list { padding: 0 20px; }
+  .modal-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 13px 0;
+    cursor: pointer;
+    transition: opacity .15s;
+  }
+  .modal-item:active { opacity: .6; }
+  .modal-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--dark-icon-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .modal-icon svg { width: 17px; height: 17px; fill: #fff; }
+  .modal-item-text {
+    flex: 1;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  /* === COMMON BACK BUTTON ON SCREENS === */
+  .back-bar {
+    padding: 12px 18px 0;
+  }
+  .back-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 24px;
+    color: var(--text-primary);
+    padding: 4px;
+    line-height: 1;
+  }
+
+  /* === TARIFFS SCREEN === */
+  .tariffs-head {
+    padding: 6px 20px 20px;
+    background: #fff;
+  }
+  .tariffs-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -.4px;
+    line-height: 1.15;
+  }
+  .tariffs-subtitle {
+    font-size: 14.5px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  .accordion {
+    background: #fff;
+    border-top: 8px solid var(--bg-soft);
+  }
+  .acc-header-row {
+    padding: 18px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    gap: 12px;
+  }
+  .acc-name {
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -.2px;
+    line-height: 1.25;
+  }
+  .acc-chevron {
+    color: var(--text-primary);
+    font-size: 13px;
+    transition: transform .3s;
+    flex-shrink: 0;
+  }
+  .accordion.open .acc-chevron {
+    transform: rotate(180deg);
+  }
+  .acc-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .4s ease;
+  }
+  .accordion.open .acc-body {
+    max-height: 2400px;
+  }
+  .acc-body-inner {
+    padding: 0 20px 22px;
+  }
+
+  .tariff-row {
+    display: flex;
+    gap: 14px;
+    padding: 10px 0;
+    align-items: flex-start;
+  }
+  .tariff-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--dark-icon-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+  .tariff-icon svg { width: 17px; height: 17px; fill: #fff; }
+  .tariff-content { flex: 1; min-width: 0; padding-top: 2px; }
+  .tariff-label {
+    font-size: 13.5px;
+    color: var(--text-muted);
+    line-height: 1.4;
+    margin-bottom: 4px;
+  }
+  .tariff-value {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.4;
+  }
+  .tariff-section-title {
+    font-size: 15.5px;
+    color: var(--text-primary);
+    font-weight: 700;
+    margin: 14px 0 4px;
+  }
+  .tariff-paragraph {
+    font-size: 13.5px;
+    color: var(--text-secondary);
+    line-height: 1.55;
+    margin-bottom: 12px;
+  }
+  .tariff-link {
+    display: inline-block;
+    color: var(--vtb-blue);
+    font-size: 14.5px;
+    font-weight: 500;
+    text-decoration: none;
+    margin-top: 12px;
+    cursor: pointer;
+  }
+  .tariff-info-note {
+    margin-top: 14px;
+    padding: 12px 14px;
+    background: #EAF3FF;
+    border-radius: 12px;
+    font-size: 13.5px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  /* Ladder rows (commission tariff) */
+  .ladder-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .ladder-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    background: #F4F8FE;
+    border: 1px solid #DDE9F8;
+    border-radius: 14px;
+  }
+  .ladder-card.active {
+    background: #E6F0FE;
+    border-color: var(--vtb-blue);
+  }
+  .ladder-price {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--vtb-blue);
+    line-height: 1;
+  }
+  .ladder-price span {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+  }
+  .ladder-range {
+    font-size: 13px;
+    color: var(--text-secondary);
+    text-align: right;
+    line-height: 1.35;
+  }
+  .ladder-badge {
+    display: inline-block;
+    margin-top: 4px;
+    background: var(--vtb-blue);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 5px;
+    text-transform: uppercase;
+    letter-spacing: .3px;
+  }
+
+  /* Repay order list */
+  .repay-list { padding: 0; margin: 0; counter-reset: step; list-style: none; }
+  .repay-list li {
+    position: relative;
+    padding: 10px 0 10px 36px;
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    counter-increment: step;
+  }
+  .repay-list li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0; top: 8px;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: var(--bg-soft);
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .repay-list li strong {
+    color: var(--text-primary);
+    font-weight: 600;
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  /* === HISTORY SCREEN === */
+  .history-head { padding: 6px 20px 18px; }
+  .history-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -.3px;
+    line-height: 1.2;
+  }
+  .history-subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 5px;
+  }
+  .history-filters {
+    padding: 0 20px 16px;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .history-filters::-webkit-scrollbar { display: none; }
+  .history-filter {
+    border: none;
+    background: var(--bg-soft);
+    color: var(--text-primary);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-family: var(--font);
+    font-size: 13.5px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .history-filter.active {
+    background: var(--dark-icon-bg);
+    color: #fff;
+  }
+  .history-list { padding: 0 20px 24px; }
+  .history-item {
+    display: flex;
+    gap: 14px;
+    padding: 16px 0;
+  }
+  .history-item + .history-item { border-top: 1px solid var(--border-light); }
+  .hist-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 9px;
+    background: var(--bg-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .hist-icon svg { width: 14px; height: 14px; fill: var(--text-primary); }
+  .hist-icon.green { background: #E6F4ED; }
+  .hist-icon.green svg { fill: var(--accent-green); }
+  .hist-icon.blue { background: #E8F0FB; }
+  .hist-icon.blue svg { fill: var(--vtb-blue); }
+  .hist-info { flex: 1; }
+  .hist-item-title {
+    font-size: 15.5px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+  }
+  .hist-amount {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+  }
+  .hist-amount s {
+    color: var(--text-muted);
+    font-weight: 400;
+    font-size: 14px;
+    margin-left: 6px;
+    text-decoration: line-through;
+  }
+  .hist-time {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+  }
+  .hist-meta { font-size: 13px; color: var(--text-muted); }
+
+  /* === DEBT SCREEN === */
+  .debt-head { padding: 6px 20px 18px; background: #fff; }
+  .debt-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -.3px;
+    line-height: 1.2;
+  }
+  .debt-subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+  .debt-amount {
+    margin: 8px 20px 18px;
+    padding: 20px;
+    background: var(--bg-soft);
+    border-radius: var(--radius);
+  }
+  .debt-amount-label {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+  .debt-amount-value {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -1px;
+    line-height: 1;
+  }
+  .debt-amount-value span { font-size: 22px; font-weight: 600; opacity: .65; }
+  .debt-stat-grid {
+    margin: 12px 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+  .debt-stat {
+    padding: 12px 12px;
+    background: var(--bg-soft);
+    border-radius: 12px;
+    text-align: left;
+  }
+  .debt-stat-label {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+  .debt-stat-value {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  .debt-stat-value.orange { color: var(--accent-orange); }
+  .debt-stat-value.green  { color: var(--accent-green); }
+
+  .section-block {
+    margin: 16px 16px 0;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .section-header {
+    padding: 16px 16px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-title {
+    font-size: 15.5px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  .section-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .payment-row {
+    display: flex; align-items: center;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .payment-row:last-child { border-bottom: none; }
+  .payment-icon-sm {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: var(--vtb-blue-light);
+    display: flex; align-items: center; justify-content: center;
+    margin-right: 12px; flex-shrink: 0;
+  }
+  .payment-icon-sm svg { width: 17px; height: 17px; stroke: var(--vtb-blue); stroke-width: 2; fill: none; }
+  .payment-icon-sm.green { background: #E6F4ED; }
+  .payment-icon-sm.green svg { stroke: var(--accent-green); }
+  .payment-info { flex: 1; }
+  .payment-title { font-size: 14px; font-weight: 500; color: var(--text-primary); }
+  .payment-sub { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+  .payment-amount { font-size: 15px; font-weight: 700; color: var(--text-primary); }
+  .payment-amount.green  { color: var(--accent-green); }
+
+  /* Commission calc box on debt screen */
+  .commission-block {
+    margin: 16px 16px 0;
+    background: linear-gradient(135deg, #EAF3FF 0%, #DFF0FF 100%);
+    border: 1.5px solid #B8D8F8;
+    border-radius: var(--radius);
+    padding: 18px;
+  }
+  .commission-block-label {
+    font-size: 11px;
+    color: var(--vtb-blue);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin-bottom: 8px;
+  }
+  .commission-block-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+  .commission-block-sub {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 14px;
+  }
+  .commission-tiers {
+    display: flex;
+    gap: 6px;
+  }
+  .commission-tier {
+    flex: 1;
+    background: rgba(255,255,255,.7);
+    border: 1px solid rgba(0,102,204,.15);
+    border-radius: 10px;
+    padding: 10px 8px;
+    text-align: center;
+  }
+  .commission-tier.active {
+    background: var(--vtb-blue);
+    border-color: var(--vtb-blue);
+  }
+  .commission-tier-price {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1;
+  }
+  .commission-tier.active .commission-tier-price { color: #fff; }
+  .commission-tier-range {
+    font-size: 10.5px;
+    color: var(--text-muted);
+    margin-top: 3px;
+  }
+  .commission-tier.active .commission-tier-range { color: rgba(255,255,255,.85); }
+  .commission-note {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid #B8D8F8;
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+  .commission-note strong { color: var(--vtb-blue); font-weight: 700; }
+
+  .minpay-note {
+    margin: 0 16px 14px;
+    padding: 10px 12px;
+    background: var(--vtb-blue-light);
+    border-radius: 10px;
+    font-size: 12px;
+    color: var(--vtb-blue);
+    line-height: 1.5;
+  }
+
+  /* Commission breakdown by ladder tier */
+  .comm-breakdown {
+    padding: 12px 16px 14px;
+    background: #FAFBFD;
+    border-top: 1px solid var(--border-light);
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .comm-tier-bar {
+    display: flex;
+    height: 7px;
+    border-radius: 4px;
+    overflow: hidden;
+    background: var(--border-light);
+    margin-bottom: 4px;
+  }
+  .comm-tier-bar-seg {
+    height: 100%;
+    transition: width .3s ease;
+  }
+  .comm-tier-bar-seg.tier-1 { background: #7BBFF5; }
+  .comm-tier-bar-seg.tier-2 { background: #3A90E0; }
+  .comm-tier-bar-seg.tier-3 { background: var(--vtb-blue); }
+  .comm-breakdown-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  .comm-tier-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .comm-tier-dot.tier-1 { background: #7BBFF5; }
+  .comm-tier-dot.tier-2 { background: #3A90E0; }
+  .comm-tier-dot.tier-3 { background: var(--vtb-blue); }
+  .comm-breakdown-formula {
+    flex: 1;
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+  .comm-breakdown-amount {
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  /* Min payment formation block */
+  .minpay-info-block {
+    margin: 14px 16px 0;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 18px 16px;
+  }
+  .minpay-info-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .minpay-info-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--vtb-blue-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .minpay-info-icon svg {
+    width: 17px;
+    height: 17px;
+    stroke: var(--vtb-blue);
+    fill: none;
+    stroke-width: 2;
+  }
+  .minpay-info-title {
+    font-size: 15.5px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.3;
+  }
+  .minpay-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .minpay-step {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .step-num {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--vtb-blue-light);
+    color: var(--vtb-blue);
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .step-text {
+    flex: 1;
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+  .step-text strong {
+    color: var(--text-primary);
+    font-weight: 600;
+    display: block;
+    margin-bottom: 3px;
+    font-size: 13.5px;
+  }
+  .minpay-key-dates {
+    background: var(--bg-soft);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .kd-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-light);
+  }
+  .kd-row:last-child { border-bottom: none; }
+  .kd-row.highlight {
+    background: var(--vtb-blue-light);
+    color: var(--vtb-blue);
+    font-weight: 600;
+  }
+  .kd-value {
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  .kd-row.highlight .kd-value { color: var(--vtb-blue); }
+
+  /* Funds in processing */
+  .processing-row {
+    display: flex;
+    align-items: center;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    gap: 12px;
+  }
+  .processing-row:last-child { border-bottom: none; }
+  .processing-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: #FFF6E5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .processing-icon svg {
+    width: 17px;
+    height: 17px;
+    stroke: #E0A100;
+    fill: none;
+    stroke-width: 2;
+  }
+  .processing-icon::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid #FFB800;
+    animation: pulse 1.6s infinite ease-in-out;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50%      { transform: scale(.7); opacity: .55; }
+  }
+  .processing-info { flex: 1; min-width: 0; }
+  .processing-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+  .processing-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 1px;
+  }
+  .processing-amount {
+    font-size: 15px;
+    font-weight: 700;
+    color: #B27E00;
+    white-space: nowrap;
+  }
+
+  .pay-btn-wrap { padding: 18px 16px 24px; }
+  .pay-btn {
+    width: 100%;
+    padding: 16px;
+    background: var(--vtb-blue);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    font-family: var(--font);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(0,102,204,.35);
+    transition: transform .15s, box-shadow .15s;
+  }
+  .pay-btn:active { transform: scale(.98); box-shadow: 0 3px 10px rgba(0,102,204,.25); }
+
+  /* === SETTINGS (minimal, по скрину) === */
+  .set-page-title {
+    padding: 22px 20px 18px;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -.4px;
+  }
+  .set-list {
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .set-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 0;
+    cursor: pointer;
+    transition: opacity .15s;
+  }
+  .set-row:active { opacity: .6; }
+  .set-icon-dark {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--dark-icon-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .set-icon-dark svg {
+    width: 17px;
+    height: 17px;
+    fill: #fff;
+  }
+  .set-row-text {
+    flex: 1;
+    font-size: 15.5px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+  .set-row-arrow {
+    color: var(--text-muted);
+    font-size: 18px;
+    margin-left: 4px;
+  }
+
+  .rl-status {
+    margin: 22px 16px 0;
+    padding: 14px 16px;
+    background: #F2F8F5;
+    border: 1px solid #CDE9DA;
+    border-radius: var(--radius);
+  }
+  .rl-status-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .rl-status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent-green);
+    box-shadow: 0 0 0 4px rgba(0,182,122,.18);
+    flex-shrink: 0;
+  }
+  .rl-status-info { flex: 1; min-width: 0; }
+  .rl-status-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+  .rl-status-sub { font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
+  .rl-status-meta { margin-top: 8px; margin-left: 18px; font-size: 12px; color: var(--text-muted); }
+
+  .danger-block {
+    margin: 14px 16px 24px;
+    background: #fff;
+    border: 1px solid #F4D5D2;
+    border-radius: var(--radius);
+    padding: 18px 16px;
+  }
+  .danger-title { font-size: 15px; font-weight: 700; color: #C03A30; margin-bottom: 8px; }
+  .danger-text { font-size: 13px; color: var(--text-secondary); line-height: 1.55; margin-bottom: 14px; }
+  .danger-text strong { color: var(--text-primary); font-weight: 600; }
+  .danger-btn {
+    width: 100%;
+    padding: 14px;
+    background: #fff;
+    color: #C03A30;
+    border: 1.5px solid #F4D5D2;
+    border-radius: 14px;
+    font-family: var(--font);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .danger-btn:active { transform: scale(.98); }
+
+  /* MIN PAYMENT CARD (new — matches screenshot) */
+  .minpay-card {
+    margin: 16px 16px 0;
+    padding: 22px 20px 18px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+  .minpay-card-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 18px;
+    letter-spacing: -.3px;
+  }
+  .minpay-card-amount {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.35;
+    margin-bottom: 14px;
+  }
+  .minpay-card-text {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin-bottom: 22px;
+  }
+  .minpay-card-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+  .minpay-field-label {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+  .minpay-field-value {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+  .minpay-card-link {
+    display: inline-block;
+    font-size: 15px;
+    color: var(--vtb-blue);
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    padding: 4px 0;
+  }
+  .minpay-card-link:active { opacity: .6; }
+
+  /* COMMISSION DETAIL MODAL */
+  .comm-modal-sheet { padding-bottom: 24px; }
+  .comm-modal-header {
+    display: flex;
+    align-items: flex-start;
+    padding: 4px 18px 16px;
+    gap: 12px;
+  }
+  .comm-modal-titles { flex: 1; }
+  .comm-modal-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -.3px;
+    line-height: 1.2;
+  }
+  .comm-modal-sub {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+  .comm-modal-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    color: var(--text-primary);
+    padding: 4px 6px;
+    line-height: 1;
+  }
+  .comm-days-pill {
+    margin: 0 18px 20px;
+    padding: 16px 18px;
+    background: var(--bg-soft);
+    border-radius: 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+  }
+  .comm-days-col { text-align: left; }
+  .comm-days-num {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.2;
+    margin-bottom: 4px;
+  }
+  .comm-days-rate {
+    font-size: 12.5px;
+    color: var(--text-muted);
+  }
+  .comm-modal-desc {
+    padding: 0 18px 18px;
+    font-size: 15px;
+    color: var(--text-primary);
+    line-height: 1.45;
+  }
+  .comm-rules { padding: 0 18px; }
+  .comm-rule {
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .comm-rule:last-child { border-bottom: none; }
+  .comm-rule-rate {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+  .comm-rule-when {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+
+  /* ===== OPERATIONS HISTORY SCREEN ===== */
+  .ops-head {
+    padding: 12px 20px 14px;
+  }
+  .ops-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -.3px;
+    line-height: 1.2;
+  }
+  .ops-subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 5px;
+  }
+  .ops-list {
+    padding: 4px 16px 24px;
+  }
+  .ops-group-date {
+    padding: 14px 4px 8px;
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+  }
+  .ops-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 4px;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .ops-item:last-child { border-bottom: none; }
+  .ops-icon {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .ops-icon svg { width: 18px; height: 18px; }
+  .ops-icon.purchase   { background: #FFE9DB; }
+  .ops-icon.purchase svg { stroke: #B25A1F; }
+  .ops-icon.topup      { background: #E1F4E9; }
+  .ops-icon.topup svg    { stroke: #1E7A3F; }
+  .ops-icon.commission { background: var(--vtb-blue-light); }
+  .ops-icon.commission svg { stroke: var(--vtb-blue); }
+  .ops-info { flex: 1; min-width: 0; }
+  .ops-title-row {
+    font-size: 14.5px;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.25;
+  }
+  .ops-sub-row {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+  .ops-amount {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    white-space: nowrap;
+  }
+  .ops-amount.minus { color: var(--text-primary); }
+  .ops-amount.plus  { color: #1E7A3F; }
+  .ops-empty {
+    padding: 60px 20px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 14.5px;
+    line-height: 1.5;
+  }
+  .ops-empty-icon {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: var(--bg-soft);
+    display: inline-flex; align-items: center; justify-content: center;
+    margin-bottom: 14px;
+  }
+  .ops-empty-icon svg {
+    width: 26px; height: 26px;
+    stroke: var(--text-muted);
+    fill: none;
+    stroke-width: 2;
+  }
+
+  /* ===== TRANSFER SCREEN (Между своими счетами) ===== */
+  .transfer-topbar {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px 14px;
+    gap: 8px;
+  }
+  .transfer-topbar .back-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 24px;
+    color: var(--text-primary);
+    padding: 4px 8px;
+    line-height: 1;
+  }
+  .transfer-title {
+    flex: 1;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: -.2px;
+  }
+  .transfer-spacer { width: 36px; }
+
+  .transfer-row {
+    padding: 12px 20px 14px;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .transfer-row-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+  .transfer-row-label {
+    font-size: 14px;
+    color: var(--text-muted);
+  }
+  .transfer-chevron {
+    font-size: 18px;
+    color: var(--text-muted);
+    line-height: 1;
+  }
+  .transfer-row-main {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .transfer-row-info { flex: 1; min-width: 0; }
+  .transfer-row-name {
+    font-size: 15.5px;
+    color: var(--text-primary);
+    font-weight: 500;
+    line-height: 1.3;
+  }
+  .transfer-row-name .muted { color: var(--text-muted); font-weight: 400; }
+  .transfer-row-amount {
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-top: 4px;
+    letter-spacing: -.3px;
+  }
+  .transfer-card-icon {
+    width: 44px; height: 30px;
+    border-radius: 5px;
+    background: linear-gradient(135deg, #1f7ad9 0%, #0e3a85 100%);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .3px;
+  }
+  .transfer-card-icon.dark {
+    background: #2a3344;
+  }
+
+  .transfer-swap {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0 24px;
+    margin: -16px 0 -16px;
+    position: relative;
+    z-index: 3;
+  }
+  .transfer-swap-btn {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: #fff;
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,.06);
+  }
+  .transfer-swap-btn svg {
+    width: 18px; height: 18px; stroke: var(--text-primary);
+  }
+
+  .transfer-amount-section {
+    padding: 22px 20px 14px;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .transfer-input {
+    width: 100%;
+    font-family: var(--font);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text-primary);
+    background: transparent;
+    border: none;
+    outline: none;
+    padding: 4px 0;
+    margin-top: 4px;
+  }
+
+  .transfer-tiles {
+    display: flex;
+    gap: 8px;
+    padding: 16px 20px 6px;
+  }
+  .transfer-tile {
+    flex: 1;
+    padding: 11px 10px;
+    border: 1.5px solid var(--border);
+    background: #fff;
+    border-radius: 14px;
+    font-family: var(--font);
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--text-primary);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all .15s;
+    text-align: center;
+  }
+  .transfer-tile:hover { border-color: var(--text-muted); }
+  .transfer-tile:active { background: var(--bg-soft); transform: scale(.97); }
+  .transfer-tile.is-disabled {
+    opacity: .4;
+    pointer-events: none;
+  }
+
+  .transfer-fee-note {
+    padding: 8px 20px 16px;
+    font-size: 13.5px;
+    color: var(--text-muted);
+  }
+
+  .transfer-informer {
+    margin: 0 20px;
+    padding: 14px 16px;
+    background: var(--bg-soft);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .informer-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 14px;
+  }
+  .informer-label {
+    color: var(--text-primary);
+    flex: 1;
+    line-height: 1.4;
+  }
+  .informer-value {
+    color: var(--text-primary);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .transfer-action {
+    padding: 24px 20px 28px;
+  }
+  .transfer-submit-btn {
+    width: 100%;
+    padding: 16px;
+    background: #1a1a1a;
+    color: #fff;
+    border: none;
+    border-radius: 16px;
+    font-family: var(--font);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform .15s;
+  }
+  .transfer-submit-btn:active { transform: scale(.98); }
+
+  /* DEBT EMPTY STATE */
+  .debt-empty {
+    margin: 16px 16px 0;
+    padding: 26px 22px;
+    background: #F2F8F5;
+    border: 1px solid #CDE9DA;
+    border-radius: var(--radius);
+    text-align: center;
+  }
+  .debt-empty-icon {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: var(--accent-green);
+    display: inline-flex; align-items: center; justify-content: center;
+    margin-bottom: 12px;
+    box-shadow: 0 6px 16px rgba(0,182,122,.3);
+  }
+  .debt-empty-icon svg { width: 26px; height: 26px; }
+  .debt-empty-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+  }
+  .debt-empty-text {
+    font-size: 13.5px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  /* PURCHASE AMOUNT PICKER */
+  .purchase-picker {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border-light);
+  }
+  .purchase-picker-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  .purchase-picker-row {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+  }
+  .purchase-amt-btn {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1.5px solid var(--border);
+    background: #fff;
+    border-radius: 12px;
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .purchase-amt-btn:hover { border-color: var(--text-muted); }
+  .purchase-amt-btn.is-active {
+    background: var(--vtb-blue);
+    border-color: var(--vtb-blue);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(0,102,204,.3);
+  }
+
+  /* TOPUP MODAL */
+  .topup-sheet {
+    padding-bottom: 24px;
+  }
+  .topup-header {
+    display: flex;
+    align-items: center;
+    padding: 0 16px 8px;
+  }
+  .topup-back {
+    width: 36px; height: 36px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 26px;
+    color: var(--text-primary);
+    padding: 0;
+    line-height: 1;
+  }
+  .topup-title {
+    flex: 1;
+    text-align: center;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  .topup-spacer { width: 36px; }
+
+  .topup-section-title {
+    padding: 14px 20px 12px;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.3;
+  }
+  .topup-banks {
+    display: flex;
+    gap: 18px;
+    padding: 0 20px 14px;
+  }
+  .topup-bank {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: opacity .15s;
+  }
+  .topup-bank:active { opacity: .6; }
+  .topup-bank-logo {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    font-size: 22px;
+    font-weight: 700;
+  }
+  .topup-bank-logo.tinkoff { background: #FFD500; color: #000; }
+  .topup-bank-logo.sber    { background: #21A038; }
+  .topup-bank-logo.other   { background: #fff; border: 1px solid var(--border-light); }
+  .topup-bank-logo.other svg { width: 28px; height: 28px; }
+  .topup-bank-logo.sber svg  { width: 28px; height: 28px; }
+  .topup-bank span {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .topup-auto {
+    margin: 6px 16px 20px;
+    background: #EFF4FB;
+    border-radius: 14px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: opacity .15s;
+  }
+  .topup-auto:active { opacity: .7; }
+  .topup-auto-icon {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--vtb-navy);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .topup-auto-icon svg { width: 20px; height: 20px; }
+  .topup-auto-title {
+    font-size: 15.5px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.25;
+  }
+  .topup-auto-sub {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .topup-list {
+    padding: 0 20px;
+  }
+  .topup-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 0;
+    cursor: pointer;
+    transition: opacity .15s;
+  }
+  .topup-row:active { opacity: .6; }
+  .topup-row + .topup-row { border-top: 1px solid var(--border-light); }
+  .topup-row-icon {
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-primary);
+    flex-shrink: 0;
+  }
+  .topup-row-icon svg { width: 24px; height: 24px; }
+  .topup-row-text {
+    flex: 1;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+  .topup-row-info { flex: 1; }
+  .topup-row-info .topup-row-text { font-size: 16px; }
+  .topup-row-sub {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 3px;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .screen.active > * {
+    animation: fadeIn .25s ease both;
+  }
+</style>
+</head>
+<body>
+
+<div class="prototype-stage">
+<div class="phone">
+  <!-- STATUS BAR -->
+  <div class="statusbar">
+    <span>17:45</span>
+    <span style="font-size:15px;font-weight:800;color:rgba(255,255,255,.7)">ЛУНА</span>
+    <div class="statusbar-icons">
+      <svg viewBox="0 0 24 24"><path d="M1 6l5 5 6-6 6 6 5-5" stroke="#fff" stroke-width="2" fill="none"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01" stroke="#fff" stroke-width="2" fill="none"/></svg>
+      <span style="font-size:12px">76%</span>
+    </div>
+  </div>
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <span class="topbar-title">ВТБ Онлайн</span>
+    <div class="topbar-actions">
+      <button class="topbar-icon">···</button>
+      <button class="topbar-icon">✕</button>
+    </div>
+  </div>
+
+  <!-- ===== SCREEN 0: ACCOUNT (CARD) ===== -->
+  <div class="screen active" id="screen-0">
+    <div class="acc-subheader">
+      <button class="acc-back" onclick="alert('Назад')">‹</button>
+      <div class="acc-subheader-center">
+        <div class="acc-title">Счёт резервного лимита</div>
+        <div class="acc-subtitle">Номер счёта · 4090</div>
+      </div>
+      <button class="acc-edit" onclick="alert('Переименовать счёт')">✎</button>
+    </div>
+
+    <div class="acc-balance" id="main-balance">100 000 ₽</div>
+
+    <div class="acc-cards-row">
+      <div class="acc-chip" onclick="alert('Карта · 8504')">
+        <span class="mir-logo">МИР</span>
+        <span>8504</span>
+      </div>
+      <div class="acc-chip-add" onclick="alert('Заказать дополнительную карту')">+</div>
+    </div>
+
+    <div class="acc-actions">
+      <div class="acc-action" onclick="openModal('modal-topup')">
+        <div class="acc-action-btn">
+          <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+        </div>
+        <span class="acc-action-label">Пополнить</span>
+      </div>
+      <div class="acc-action" onclick="openPurchasePicker()">
+        <div class="acc-action-btn">
+          <svg viewBox="0 0 24 24"><path d="M7 17L17 7M7 7h10v10"/></svg>
+        </div>
+        <span class="acc-action-label">Перевести</span>
+      </div>
+    </div>
+
+    <!-- MIN PAYMENT BANNER -->
+    <div class="minpay-banner zero" id="minpay-banner" onclick="showScreen(1)">
+      <div class="minpay-banner-top">
+        <div class="minpay-check" id="minpay-icon-wrap">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="minpay-title" id="minpay-title">Задолженность закрыта</div>
+      </div>
+      <div class="minpay-text" id="minpay-text">
+        Долг полностью погашен — комиссия не начисляется.
+      </div>
+      <span class="minpay-link" id="minpay-link">История операций →</span>
+    </div>
+
+    <!-- MENU -->
+    <div class="acc-menu">
+      <div class="acc-menu-item" onclick="openModal('modal-about')">
+        <div class="menu-dark-icon">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm0 2.5L19.5 10H14V4.5zM8 13h8v1.5H8V13zm0 3h8v1.5H8V16z"/></svg>
+        </div>
+        <div class="acc-menu-text">
+          <div class="acc-menu-title">О счёте</div>
+          <div class="acc-menu-sub">Тарифы, реквизиты, справки</div>
+        </div>
+      </div>
+
+      <div class="acc-menu-item" onclick="showScreen(3)">
+        <div class="menu-dark-icon">
+          <svg viewBox="0 0 24 24"><path d="M19.4 13.5l1.7-1.1-1-1.7-1.9.6c-.5-.4-1-.7-1.5-.9l-.4-2H14l-.4 2c-.6.2-1.1.5-1.5.9l-1.9-.6-1 1.7 1.7 1.1c-.1.5-.1 1 0 1.5l-1.7 1.1 1 1.7 1.9-.6c.4.4 1 .7 1.5.9l.4 2h3.4l.4-2c.5-.2 1.1-.5 1.5-.9l1.9.6 1-1.7-1.7-1.1c.1-.5.1-1 0-1.5zM12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm0 6a2 2 0 1 1 0-4 2 2 0 0 1 0 4z" transform="translate(-2 -2) scale(1.2)"/></svg>
+        </div>
+        <div class="acc-menu-text">
+          <div class="acc-menu-title">Настройки</div>
+          <div class="acc-menu-sub">Управление вашим счётом</div>
+        </div>
+      </div>
+
+      <div class="acc-menu-item" onclick="showScreen(1)">
+        <div class="menu-dark-icon">
+          <svg viewBox="0 0 24 24"><path d="M7 4c-.6 0-1.2.3-1.6.8L4 6.5V8h16V6.5l-1.4-1.7c-.4-.5-1-.8-1.6-.8H7zm-3 6v9c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-9H4zm8 7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/></svg>
+        </div>
+        <div class="acc-menu-text">
+          <div class="acc-menu-title">Задолженность</div>
+          <div class="acc-menu-sub">Детальная информация</div>
+        </div>
+      </div>
+
+      <div class="acc-menu-item" onclick="alert('История операций — раздел в разработке')">
+        <div class="menu-dark-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm.5 5h-1.5v6l5 3 .8-1.3-4.3-2.5V7z"/></svg>
+        </div>
+        <div class="acc-menu-text">
+          <div class="acc-menu-title">История операций</div>
+          <div class="acc-menu-sub">По карте и счёту</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SCREEN 1: DEBT ===== -->
+  <div class="screen" id="screen-1">
+    <div class="back-bar"><button class="back-btn" onclick="showScreen(0)">‹</button></div>
+    <div class="debt-head">
+      <h1 class="debt-title">Задолженность</h1>
+      <div class="debt-subtitle">Резервный лимит · карта · 8504</div>
+    </div>
+
+    <div class="debt-amount">
+      <div class="debt-amount-label">Текущий остаток задолженности</div>
+      <div class="debt-amount-value" id="debt-amount-value">0 <span>₽</span></div>
+    </div>
+
+    <!-- EMPTY STATE: показывается при debt = 0 -->
+    <div class="debt-empty" id="debt-empty" style="display:none">
+      <div class="debt-empty-icon">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" stroke="#fff" stroke-width="3" fill="none"/></svg>
+      </div>
+      <div class="debt-empty-title">Задолженности нет</div>
+      <div class="debt-empty-text">Лимит 100 000 ₽ доступен полностью. Комиссия не начисляется — ежедневная плата списывается только в дни, когда есть долг.</div>
+    </div>
+
+    <!-- MIN PAYMENT CARD (по скрину) -->
+    <div class="minpay-card" id="debt-min-section">
+      <div class="minpay-card-title">Минимальный платеж</div>
+      <div class="minpay-card-amount" id="minpay-card-amount">Внесите 2 198 ₽ до 20 мая</div>
+      <div class="minpay-card-text">
+        Вносите минимальные платежи каждый месяц, чтобы не допустить просрочки и не портить кредитную историю.
+      </div>
+      <div class="minpay-card-fields">
+        <div>
+          <div class="minpay-field-label">Основной долг</div>
+          <div class="minpay-field-value" id="three-pct-amount">1 475 ₽</div>
+        </div>
+        <div>
+          <div class="minpay-field-label">Текущий тариф</div>
+          <div class="minpay-field-value" id="minpay-rate">49 ₽ в день</div>
+        </div>
+        <div>
+          <div class="minpay-field-label">Комиссия</div>
+          <div class="minpay-field-value" id="month-comm-amount">723 ₽</div>
+        </div>
+      </div>
+      <a class="minpay-card-link" onclick="openModal('modal-commission')">Подробнее</a>
+    </div>
+
+  </div>
+
+  <!-- ===== SCREEN 2: TARIFFS & CONDITIONS ===== -->
+  <div class="screen" id="screen-2">
+    <div class="back-bar"><button class="back-btn" onclick="showScreen(0)">‹</button></div>
+    <div class="tariffs-head">
+      <h1 class="tariffs-title">Ваши тарифы и условия</h1>
+      <p class="tariffs-subtitle">Кредитная карта ВТБ</p>
+    </div>
+
+    <!-- 1. Commission for usage (ladder) -->
+    <div class="accordion open">
+      <div class="acc-header-row" onclick="toggleAccordion(this)">
+        <span class="acc-name">Комиссия за пользование</span>
+        <span class="acc-chevron">▲</span>
+      </div>
+      <div class="acc-body">
+        <div class="acc-body-inner">
+          <div class="tariff-section-title" style="margin-top:0">Тариф «Лесенка»</div>
+          <p class="tariff-paragraph">
+            Фиксированная плата за каждый день, в который есть остаток задолженности по карте. Размер платы зависит от суммы долга на конец дня.
+          </p>
+          <div class="ladder-stack">
+            <div class="ladder-card">
+              <div>
+                <div class="ladder-price">19 ₽<span> / день</span></div>
+              </div>
+              <div class="ladder-range">При долге<br>до 30 000 ₽</div>
+            </div>
+            <div class="ladder-card active">
+              <div>
+                <div class="ladder-price">49 ₽<span> / день</span></div>
+              </div>
+              <div class="ladder-range">При долге<br>30 001 — 70 000 ₽</div>
+            </div>
+            <div class="ladder-card">
+              <div>
+                <div class="ladder-price">99 ₽<span> / день</span></div>
+              </div>
+              <div class="ladder-range">При долге<br>свыше 70 000 ₽</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Cash withdrawal -->
+    <div class="accordion open">
+      <div class="acc-header-row" onclick="toggleAccordion(this)">
+        <span class="acc-name">Наличные в банкоматах</span>
+        <span class="acc-chevron">▲</span>
+      </div>
+      <div class="acc-body">
+        <div class="acc-body-inner">
+          <div class="tariff-row">
+            <div class="tariff-icon">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M9 9h5a2 2 0 0 1 0 4h-4a2 2 0 0 0 0 4h5" stroke="#fff" stroke-width="1.7" fill="none"/></svg>
+            </div>
+            <div class="tariff-content">
+              <div class="tariff-label">Комиссия</div>
+              <div class="tariff-value">0 ₽</div>
+            </div>
+          </div>
+          <div class="tariff-section-title">Совокупные лимиты для всех кредитных и дебетовых карт</div>
+          <div class="tariff-row">
+            <div class="tariff-icon">
+              <svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18" stroke="#15171B" stroke-width="1.5"/></svg>
+            </div>
+            <div class="tariff-content">
+              <div class="tariff-label">Лимит на снятие в день</div>
+              <div class="tariff-value">100 000 ₽</div>
+            </div>
+          </div>
+          <div class="tariff-row">
+            <div class="tariff-icon">
+              <svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18" stroke="#15171B" stroke-width="1.5"/></svg>
+            </div>
+            <div class="tariff-content">
+              <div class="tariff-label">Лимит на снятие в месяц</div>
+              <div class="tariff-value">3 000 000 ₽</div>
+            </div>
+          </div>
+          <div class="tariff-info-note">
+            В банкоматах, не входящих в Группу ВТБ, возможна дополнительная комиссия сторонних банков.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Transfers -->
+    <div class="accordion">
+      <div class="acc-header-row" onclick="toggleAccordion(this)">
+        <span class="acc-name">Переводы</span>
+        <span class="acc-chevron">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="acc-body-inner">
+          <div class="tariff-row">
+            <div class="tariff-icon">
+              <svg viewBox="0 0 24 24"><path d="M4 9h12l-3-3M20 15H8l3 3" stroke="#fff" stroke-width="2" fill="none"/></svg>
+            </div>
+            <div class="tariff-content">
+              <div class="tariff-label">Комиссия</div>
+              <div class="tariff-value">0 ₽</div>
+            </div>
+          </div>
+          <span class="tariff-link" onclick="alert('Подробнее о квази-кэш операциях')">Подробнее о квази-кэш операциях</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Payments -->
+    <div class="accordion">
+      <div class="acc-header-row" onclick="toggleAccordion(this)">
+        <span class="acc-name">Платежи</span>
+        <span class="acc-chevron">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="acc-body-inner">
+          <div class="tariff-section-title" style="margin-top:0">Оплата товаров и услуг</div>
+          <div class="tariff-row">
+            <div class="tariff-icon">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12" stroke="#fff" stroke-width="2"/></svg>
+            </div>
+            <div class="tariff-content">
+              <div class="tariff-label">Комиссия за платежи</div>
+              <div class="tariff-value">0 ₽</div>
+            </div>
+          </div>
+          <div class="tariff-row">
+            <div class="tariff-icon">
+              <svg viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="3" height="3"/><rect x="17" y="17" width="3" height="3"/></svg>
+            </div>
+            <div class="tariff-content">
+              <div class="tariff-label">Комиссия за платежи через СБП, в том числе через QR-код</div>
+              <div class="tariff-value">0%</div>
+            </div>
+          </div>
+          <div class="tariff-row">
+            <div class="tariff-icon">
+              <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 9h10M7 13h6" stroke="#15171B" stroke-width="1.5"/></svg>
+            </div>
+            <div class="tariff-content">
+              <div class="tariff-label">Комиссия за операции квази-кэш</div>
+              <div class="tariff-value">0 ₽</div>
+            </div>
+          </div>
+          <span class="tariff-link" onclick="alert('Подробнее о квази-кэш операциях')">Подробнее о квази-кэш операциях</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Service conditions (cashback, min payment) -->
+    <div class="accordion">
+      <div class="acc-header-row" onclick="toggleAccordion(this)">
+        <span class="acc-name">Условия использования</span>
+        <span class="acc-chevron">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="acc-body-inner">
+          <div class="tariff-row">
+            <div class="tariff-icon">
+              <svg viewBox="0 0 24 24"><path d="M20 8h-3.4c.3-.6.4-1.2.4-2a3 3 0 0 0-6-.4 3 3 0 0 0-6 .4c0 .8.2 1.4.4 2H2v3h2v9h16v-9h2V8h-2zM12 11H4v-1h8v1zm0 0h8v-1h-8v1z" /></svg>
+            </div>
+            <div class="tariff-content">
+              <div class="tariff-label">Кэшбэк рублями</div>
+              <div class="tariff-value">До 15%</div>
+            </div>
+          </div>
+          <div class="tariff-row">
+            <div class="tariff-icon">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><text x="12" y="16" text-anchor="middle" font-size="10" fill="#15171B" font-weight="700">₽</text></svg>
+            </div>
+            <div class="tariff-content">
+              <div class="tariff-label">Минимальный платёж</div>
+              <div class="tariff-value">3% от суммы основного долга + начисленные комиссии при наличии</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. Repayment order -->
+    <div class="accordion">
+      <div class="acc-header-row" onclick="toggleAccordion(this)">
+        <span class="acc-name">Порядок погашения задолженности</span>
+        <span class="acc-chevron">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="acc-body-inner">
+          <ol class="repay-list">
+            <li><strong>Сверхлимитная задолженность</strong>Перерасход средств сверх предоставленного кредитного лимита</li>
+            <li><strong>Просроченная задолженность</strong>Часть основного долга и комиссий, входивших в просроченные минимальные платежи</li>
+            <li><strong>Минимальный платёж</strong>3% от основного долга + начисленные комиссии за расчётный период</li>
+            <li><strong>Начисленные комиссии</strong>Комиссии за дни с долгом по тарифу «Лесенка»</li>
+            <li><strong>Остаток основного долга</strong>Сумма задолженности по кредиту, не включённая в минимальный платёж</li>
+            <li><strong>Штрафы и пени</strong>Задолженность при наличии просроченных минимальных платежей</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+    <div style="height:24px"></div>
+  </div>
+
+  <!-- ===== SCREEN 3: SETTINGS ===== -->
+  <div class="screen" id="screen-3">
+    <div class="back-bar"><button class="back-btn" onclick="showScreen(0)">‹</button></div>
+    <div class="set-page-title">Настройки счёта</div>
+
+    <div class="set-list">
+      <div class="set-row" onclick="alert('Кредитные каникулы')">
+        <div class="set-icon-dark">
+          <svg viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14" rx="0.6"/><rect x="14" y="5" width="4" height="14" rx="0.6"/></svg>
+        </div>
+        <div class="set-row-text">Кредитные каникулы</div>
+        <span class="set-row-arrow">›</span>
+      </div>
+      <div class="set-row" onclick="alert('Застраховать задолженность')">
+        <div class="set-icon-dark">
+          <svg viewBox="0 0 24 24"><path d="M12 2L4 6v6c0 5 3.5 9.5 8 11 4.5-1.5 8-6 8-11V6l-8-4z"/></svg>
+        </div>
+        <div class="set-row-text">Застраховать задолженность</div>
+        <span class="set-row-arrow">›</span>
+      </div>
+      <div class="set-row" style="cursor:default;pointer-events:none">
+        <div class="set-icon-dark">
+          <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        </div>
+        <div class="set-row-text">Резервный лимит</div>
+        <span class="set-row-arrow">›</span>
+      </div>
+    </div>
+
+    <div class="rl-status" id="rl-status">
+      <div class="rl-status-row">
+        <div class="rl-status-dot"></div>
+        <div class="rl-status-info">
+          <div class="rl-status-title">Резервный лимит</div>
+          <div class="rl-status-sub">Услуга подключена · лимит 100 000 ₽</div>
+        </div>
+      </div>
+      <div class="rl-status-meta">Действует с 15 апреля 2026 года</div>
+    </div>
+
+    <div class="danger-block">
+      <div class="danger-title">Отключение услуги</div>
+      <div class="danger-text">
+        Перед отключением необходимо <strong>полностью погасить задолженность</strong> по резервному лимиту. После отключения вы сможете подключить услугу снова в любой момент через приложение.
+      </div>
+      <button class="danger-btn" onclick="tryDisconnect()">Отключить резервный лимит</button>
+    </div>
+  </div>
+
+  <!-- ===== SCREEN 4: МЕЖДУ СВОИМИ СЧЕТАМИ ===== -->
+  <div class="screen" id="screen-4">
+    <div class="transfer-topbar">
+      <button class="back-btn" onclick="showScreen(0)">‹</button>
+      <div class="transfer-title">Между своими счетами</div>
+      <div class="transfer-spacer"></div>
+    </div>
+
+    <div class="transfer-row">
+      <div class="transfer-row-top">
+        <span class="transfer-row-label">Откуда списывать деньги</span>
+        <span class="transfer-chevron">⌄</span>
+      </div>
+      <div class="transfer-row-main">
+        <div class="transfer-row-info">
+          <div class="transfer-row-name">Мастер-счёт в рублях <span class="muted">· 1369</span></div>
+          <div class="transfer-row-amount">35 314,96 ₽</div>
+        </div>
+        <div class="transfer-card-icon">
+          <span>МИР</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="transfer-swap">
+      <button class="transfer-swap-btn" onclick="alert('Сменить направление перевода')">
+        <svg viewBox="0 0 24 24"><path d="M8 3v18M5 18l3 3 3-3M16 21V3M13 6l3-3 3 3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+
+    <div class="transfer-row">
+      <div class="transfer-row-top">
+        <span class="transfer-row-label">Карта/счёт зачисления</span>
+        <span class="transfer-chevron">⌄</span>
+      </div>
+      <div class="transfer-row-main">
+        <div class="transfer-row-info">
+          <div class="transfer-row-name">Счёт резервного лимита в&nbsp;ру… <span class="muted">Кред&nbsp;·</span></div>
+          <div class="transfer-row-amount" id="transfer-target-amount">100 000 ₽</div>
+        </div>
+        <div class="transfer-card-icon dark">
+          <span>МИР</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="transfer-amount-section">
+      <div class="transfer-row-label">Сумма в валюте списания</div>
+      <input class="transfer-input" id="transfer-input" type="text" inputmode="numeric" value="100 ₽" oninput="formatTransferInput(this)" />
+    </div>
+
+    <div class="transfer-tiles">
+      <button class="transfer-tile" id="tile-min" onclick="setTransferAmount('min')">100 ₽</button>
+      <button class="transfer-tile" id="tile-total" onclick="setTransferAmount('total')">0 ₽</button>
+      <button class="transfer-tile" id="tile-all" onclick="setTransferAmount('all')">Перевести все</button>
+    </div>
+
+    <div class="transfer-fee-note">Без комиссии</div>
+
+    <div class="transfer-informer">
+      <div class="informer-row">
+        <span class="informer-label">Минимальный платёж до <span id="informer-min-date">20 мая</span></span>
+        <span class="informer-value" id="informer-min-value">100 ₽</span>
+      </div>
+      <div class="informer-row">
+        <span class="informer-label">Общая задолженность</span>
+        <span class="informer-value" id="informer-total-value">0 ₽</span>
+      </div>
+    </div>
+
+    <div class="transfer-action">
+      <button class="transfer-submit-btn" onclick="submitTransfer()">Перевести</button>
+    </div>
+  </div>
+
+  <!-- ===== MODAL: О счёте ===== -->
+  <div class="modal-overlay" id="modal-about" onclick="closeModalOnBg(event)">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-title">Информация о счёте</div>
+      <div class="modal-list">
+        <div class="modal-item" onclick="alert('Заказать справку')">
+          <div class="modal-icon">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm0 2.5L19.5 10H14V4.5zM8 13h8v1.5H8V13zm0 3h8v1.5H8V16z"/></svg>
+          </div>
+          <div class="modal-item-text">Заказать справку</div>
+        </div>
+        <div class="modal-item" onclick="alert('Реквизиты счёта')">
+          <div class="modal-icon">
+            <svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="1.5"/><path d="M8 8h8M8 12h8M8 16h5" stroke="#15171B" stroke-width="1.4"/></svg>
+          </div>
+          <div class="modal-item-text">Реквизиты</div>
+        </div>
+        <div class="modal-item" onclick="closeModal();showScreen(2)">
+          <div class="modal-icon">
+            <svg viewBox="0 0 24 24"><path d="M5 3h11l4 4v14H5V3zm2 2v14h10V8h-4V5H7z"/></svg>
+          </div>
+          <div class="modal-item-text">Тарифы и условия</div>
+        </div>
+        <div class="modal-item" onclick="alert('Выписка по счёту')">
+          <div class="modal-icon">
+            <svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="1.5"/><path d="M8 8h8M8 12h8M8 16h5" stroke="#15171B" stroke-width="1.4"/></svg>
+          </div>
+          <div class="modal-item-text">Выписка по счёту</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MODAL: Покупка ===== -->
+  <div class="modal-overlay" id="modal-purchase" onclick="closeModalOnBg(event)">
+    <div class="modal-sheet purchase-sheet">
+      <div class="modal-handle"></div>
+      <div class="purchase-mock">
+        <div class="purchase-merchant">Себе в другой банк</div>
+        <div class="purchase-amount" id="purchase-amount">30 000 ₽</div>
+        <div class="purchase-card-info">
+          <span class="mir-logo">МИР</span>
+          <span>8504</span>
+          <span style="color:var(--text-muted)">·</span>
+          <span style="color:var(--text-muted)">Резервный лимит</span>
+        </div>
+        <div class="purchase-picker">
+          <div class="purchase-picker-label">Выберите сумму перевода</div>
+          <div class="purchase-picker-row">
+            <button class="purchase-amt-btn" data-amount="15000" onclick="setPurchaseAmount(15000)">15 000 ₽</button>
+            <button class="purchase-amt-btn is-active" data-amount="30000" onclick="setPurchaseAmount(30000)">30 000 ₽</button>
+            <button class="purchase-amt-btn" data-amount="50000" onclick="setPurchaseAmount(50000)">50 000 ₽</button>
+          </div>
+        </div>
+        <div class="purchase-warning">
+          После оплаты появится задолженность, на которую с сегодняшнего дня начнёт начисляться ежедневная комиссия по тарифу «Лесенка».
+        </div>
+      </div>
+      <div class="purchase-actions">
+        <button class="modal-btn-secondary" onclick="closeModal()">Отменить</button>
+        <button class="modal-btn-primary" id="purchase-confirm" data-amount="30000" onclick="confirmPurchase()">Перевести</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MODAL: Комиссия — разбивка по дням ===== -->
+  <div class="modal-overlay" id="modal-commission" onclick="closeModalOnBg(event)">
+    <div class="modal-sheet comm-modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="comm-modal-header">
+        <div class="comm-modal-titles">
+          <div class="comm-modal-title">Комиссия <span id="comm-modal-amount">723 ₽</span></div>
+          <div class="comm-modal-sub">С разбивкой по дням</div>
+        </div>
+        <button class="comm-modal-close" onclick="closeModal()">✕</button>
+      </div>
+
+      <div class="comm-days-pill">
+        <div class="comm-days-col">
+          <div class="comm-days-num" id="comm-days-1">7 дней</div>
+          <div class="comm-days-rate">19 ₽ в день</div>
+        </div>
+        <div class="comm-days-col">
+          <div class="comm-days-num" id="comm-days-2">8 дней</div>
+          <div class="comm-days-rate">49 ₽ в день</div>
+        </div>
+        <div class="comm-days-col">
+          <div class="comm-days-num" id="comm-days-3">2 дня</div>
+          <div class="comm-days-rate">99 ₽ в день</div>
+        </div>
+      </div>
+
+      <div class="comm-modal-desc">
+        Банк начисляет комиссию за каждый день, когда у вас есть долг по карте. Если задолженности нет — комиссия не будет начислена.
+      </div>
+
+      <div class="comm-rules">
+        <div class="comm-rule">
+          <div class="comm-rule-rate">19 рублей в день</div>
+          <div class="comm-rule-when">При задолженности до 30 000 ₽</div>
+        </div>
+        <div class="comm-rule">
+          <div class="comm-rule-rate">49 рублей в день</div>
+          <div class="comm-rule-when">При задолженности от 30 001 до 70 000 ₽</div>
+        </div>
+        <div class="comm-rule">
+          <div class="comm-rule-rate">99 рублей в день</div>
+          <div class="comm-rule-when">При задолженности свыше 70 000 ₽</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MODAL: Пополнение ===== -->
+  <div class="modal-overlay" id="modal-topup" onclick="closeModalOnBg(event)">
+    <div class="modal-sheet topup-sheet">
+      <div class="modal-handle"></div>
+      <div class="topup-header">
+        <button class="topup-back" onclick="closeModal()">‹</button>
+        <div class="topup-title">Пополнение</div>
+        <div class="topup-spacer"></div>
+      </div>
+
+      <div class="topup-section-title">Со своего счёта в другом банке</div>
+      <div class="topup-banks">
+        <div class="topup-bank" onclick="topupExternal('Т-Банк')">
+          <div class="topup-bank-logo tinkoff">Т</div>
+          <span>Т-Банк</span>
+        </div>
+        <div class="topup-bank" onclick="topupExternal('Сбер')">
+          <div class="topup-bank-logo sber">
+            <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="none" stroke="#fff" stroke-width="2.6"/><polyline points="7.5 12.5 11 15.5 16.5 9.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <span>Сбер</span>
+        </div>
+        <div class="topup-bank" onclick="topupExternal('Другой банк')">
+          <div class="topup-bank-logo other">
+            <svg viewBox="0 0 24 24"><polygon points="3 4 9 4 15 12 9 20 3 20 9 12" fill="#ff5722"/><polygon points="15 4 21 4 21 20 15 20 15 12" fill="#fbbf24"/><polygon points="15 12 21 20 15 20" fill="#2563eb"/></svg>
+          </div>
+          <span>Другой</span>
+        </div>
+      </div>
+
+      <div class="topup-auto" onclick="alert('Настройка автопополнения через СБП')">
+        <div class="topup-auto-icon">
+          <svg viewBox="0 0 24 24" stroke="#fff" fill="none" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7"/><polyline points="21 4 21 10 15 10"/></svg>
+        </div>
+        <div class="topup-auto-text">
+          <div class="topup-auto-title">Настроить автопополнение</div>
+          <div class="topup-auto-sub">Через СБП без комиссии</div>
+        </div>
+      </div>
+
+      <div class="topup-section-title">Другие способы</div>
+      <div class="topup-list">
+        <div class="topup-row" onclick="openTransferScreen()">
+          <div class="topup-row-icon">
+            <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><path d="M3 12h13M11 8l5 4-5 4"/><path d="M17 5h4v14h-4"/></svg>
+          </div>
+          <span class="topup-row-text">Со своего счёта в ВТБ</span>
+        </div>
+        <div class="topup-row" onclick="alert('Пополнение с российской карты')">
+          <div class="topup-row-icon">
+            <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+          </div>
+          <span class="topup-row-text">С российской карты</span>
+        </div>
+        <div class="topup-row" onclick="alert('Пополнение по QR-коду или ссылке')">
+          <div class="topup-row-icon">
+            <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="3" height="3"/><rect x="18" y="18" width="3" height="3"/></svg>
+          </div>
+          <span class="topup-row-text">По QR-коду или ссылке</span>
+        </div>
+        <div class="topup-row" onclick="alert('Создание сбора на день рождения или другую цель')">
+          <div class="topup-row-icon">
+            <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><text x="12" y="16" text-anchor="middle" font-size="11" fill="currentColor" stroke="none" font-weight="700">₽</text></svg>
+          </div>
+          <div class="topup-row-info">
+            <div class="topup-row-text">Создать сбор</div>
+            <div class="topup-row-sub">На день рождения или другую цель</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MODAL: Платёж выполнен ===== -->
+  <div class="modal-overlay" id="modal-paysuccess" onclick="closeModalOnBg(event)">
+    <div class="modal-sheet success-sheet">
+      <div class="modal-handle"></div>
+      <div class="success-icon">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="success-title">Платёж выполнен</div>
+      <div class="success-amount" id="paysuccess-amount">2 198 ₽</div>
+      <div class="success-meta">Списано как <span id="paysuccess-mode">минимальный платёж</span> со счёта · 7421</div>
+
+      <div class="success-after">
+        <div class="success-after-row">
+          <span>Остаток задолженности</span>
+          <strong id="paysuccess-remaining">47 687 ₽</strong>
+        </div>
+        <div class="success-after-row">
+          <span>Следующий платёж</span>
+          <strong>до 20 июня</strong>
+        </div>
+      </div>
+
+      <div class="success-comment" id="paysuccess-comment">Комиссия продолжит начисляться, пока остаток долга не закрыт полностью.</div>
+
+      <button class="modal-btn-primary success-btn" onclick="closeModal();showScreen(1)">Перейти к задолженности</button>
+      <button class="modal-btn-secondary success-btn" onclick="closeModal()">Готово</button>
+    </div>
+  </div>
+</div>
+
+<aside class="demo-panel">
+  <div class="demo-header">
+    <div class="demo-title">Демо-управление</div>
+  </div>
+
+  <!-- <div class="demo-status">
+    <div class="demo-status-row"><span>Долг</span><strong id="demo-debt">49 162 ₽</strong></div>
+    <div class="demo-status-row"><span>Ставка</span><strong id="demo-rate">49 ₽/день</strong></div>
+    <div class="demo-status-row"><span>Дней с долгом</span><strong id="demo-days">22</strong></div>
+    <div class="demo-status-row"><span>За период</span><strong id="demo-monthly">723 ₽</strong></div>
+    <div class="demo-status-row"><span>Мин. платёж</span><strong id="demo-min">не оплачен</strong></div>
+  </div>-->
+
+
+  <div class="demo-section">
+    <div class="demo-section-title">Время</div>
+    <button class="demo-btn" onclick="advanceDays(1)">Прошёл 1 день</button>
+    <button class="demo-btn" onclick="advanceDays(7)">Прошло 7 дней</button>
+    <button class="demo-btn" onclick="advanceDays(30)">Прошло 30 дней</button>
+  </div>
+</aside>
+</div>
+
+<div class="nav-tabs">
+  <button class="nav-tab active" onclick="showScreen(0)">Карта</button>
+  <button class="nav-tab" onclick="showScreen(1)">Задолженность</button>
+  <button class="nav-tab" onclick="showScreen(2)">Тарифы и условия</button>
+  <button class="nav-tab" onclick="showScreen(3)">Настройки</button>
+  <button class="nav-tab" onclick="showScreen(4)">Перевод</button>
+</div>
+
+<script>
+  // ===================== STATE =====================
+  // По дефолту карта всегда без задолженности
+  const initialState = {
+    limit: 100000,
+    debt: 0,
+    daysWithDebt: 0,
+    monthlyCommission: 0,
+    tierDays: [0, 0, 0], // [19 ₽, 49 ₽, 99 ₽]
+    minPaymentPaid: false,
+    paymentDate: '20 мая',
+    operations: [],
+  };
+  // Пресет «активный долг» — для запуска сценариев из середины
+  const activeDebtPreset = {
+    limit: 100000,
+    debt: 49162,
+    daysWithDebt: 17,
+    monthlyCommission: 723,
+    tierDays: [7, 8, 2],
+    minPaymentPaid: false,
+    operations: [
+      { date: 'Сегодня · 09:00', type: 'commission', title: 'Комиссия по тарифу «Лесенка»',  sub: 'За 17 дн. с долгом · 7×19 + 8×49 + 2×99', amount: 723,   sign: '-' },
+      { date: '28 апр · 14:23', type: 'purchase',   title: 'М.Видео',                       sub: 'Оплата картой · 8504',                       amount: 49162, sign: '-' }
+    ],
+    paymentDate: '20 мая',
+  };
+  let state = JSON.parse(JSON.stringify(initialState));
+
+  function getTier(debt) {
+    if (debt <= 0) return null;
+    if (debt <= 30000) return { rate: 19, label: 'до 30 тыс.', index: 0 };
+    if (debt <= 70000) return { rate: 49, label: '30 — 70 тыс.', index: 1 };
+    return { rate: 99, label: 'свыше 70 тыс.', index: 2 };
+  }
+  function formatNum(n) {
+    return Math.round(n).toLocaleString('ru-RU').replace(/[, ]/g, ' ');
+  }
+  function fmtRub(n) { return formatNum(n) + ' ₽'; }
+  function getMinPayment() {
+    if (state.debt === 0) return 0;
+    return Math.round(state.debt * 0.03) + state.monthlyCommission;
+  }
+  function dayWord(n) {
+    const last = n % 10, lastTwo = n % 100;
+    if (lastTwo >= 11 && lastTwo <= 14) return 'дней';
+    if (last === 1) return 'день';
+    if (last >= 2 && last <= 4) return 'дня';
+    return 'дней';
+  }
+  function setText(id, text) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = text;
+  }
+  function setHTML(id, html) {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = html;
+  }
+
+  // ===================== OPERATIONS LOG =====================
+  function getNowLabel() {
+    const d = new Date();
+    const hh = String(d.getHours()).padStart(2, '0');
+    const mm = String(d.getMinutes()).padStart(2, '0');
+    return 'Сегодня · ' + hh + ':' + mm;
+  }
+  function logOperation(op) {
+    if (!state.operations) state.operations = [];
+    state.operations.unshift({ date: getNowLabel(), ...op });
+  }
+  const OPS_ICONS = {
+    purchase:   '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6h15l-1.5 9h-13z"/><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M3 3h2l1 3"/></svg>',
+    topup:      '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>',
+    commission: '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 16l8-8M9 8.5h.01M15 15.5h.01"/></svg>'
+  };
+  function renderOperations() {
+    const list = document.getElementById('ops-list');
+    if (!list) return;
+    const ops = state.operations || [];
+    if (ops.length === 0) {
+      list.innerHTML = '<div class="ops-empty">' +
+        '<div class="ops-empty-icon">' +
+          '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 16 14"/></svg>' +
+        '</div>' +
+        'Пока нет операций.<br>Совершите покупку или пополнение — они появятся здесь.' +
+        '</div>';
+      return;
+    }
+    list.innerHTML = ops.map(o => {
+      const iconCls = o.type || 'purchase';
+      const icon = OPS_ICONS[iconCls] || OPS_ICONS.purchase;
+      const amountSign = o.sign === '+' ? '+ ' : '− ';
+      const amountCls = o.sign === '+' ? 'plus' : 'minus';
+      return '<div class="ops-item">' +
+        '<div class="ops-icon ' + iconCls + '">' + icon + '</div>' +
+        '<div class="ops-info">' +
+          '<div class="ops-title-row">' + o.title + '</div>' +
+          '<div class="ops-sub-row">' + (o.date || '') + (o.sub ? ' · ' + o.sub : '') + '</div>' +
+        '</div>' +
+        '<div class="ops-amount ' + amountCls + '">' + amountSign + fmtRub(o.amount) + '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  // ===================== RENDER =====================
+  function renderAll() {
+    renderMain();
+    renderBanner();
+    renderDebt();
+    renderTierBreakdown();
+    renderTransfer();
+    renderOperations();
+    renderDemo();
+  }
+
+  function renderTransfer() {
+    const min       = getMinPayment();
+    const totalDebt = state.debt + state.monthlyCommission;
+    const free      = state.limit - state.debt;
+
+    setText('transfer-target-amount', fmtRub(free));
+    setText('tile-min', min > 0 ? fmtRub(min) : '0 ₽');
+    setText('tile-total', totalDebt > 0 ? fmtRub(totalDebt) : '0 ₽');
+
+    const tileMin   = document.getElementById('tile-min');
+    const tileTotal = document.getElementById('tile-total');
+    const tileAll   = document.getElementById('tile-all');
+    if (tileMin)   tileMin.classList.toggle('is-disabled',   min === 0);
+    if (tileTotal) tileTotal.classList.toggle('is-disabled', totalDebt === 0);
+    if (tileAll)   tileAll.classList.toggle('is-disabled',   totalDebt === 0);
+
+    setText('informer-min-date',   state.paymentDate);
+    setText('informer-min-value',  fmtRub(min));
+    setText('informer-total-value', fmtRub(totalDebt));
+
+    // На вход подставляем мин. платёж по умолчанию
+    const input = document.getElementById('transfer-input');
+    if (input && document.activeElement !== input) {
+      input.value = (min > 0 ? formatNum(min) : '100') + ' ₽';
+    }
+  }
+
+  function renderTierBreakdown() {
+    const container = document.getElementById('comm-breakdown');
+    if (!container) return;
+    const rates = [19, 49, 99];
+    const colors = ['tier-1', 'tier-2', 'tier-3'];
+    const total = state.tierDays[0] + state.tierDays[1] + state.tierDays[2];
+    if (total === 0) {
+      container.style.display = 'none';
+      return;
+    }
+    container.style.display = 'flex';
+    const segs = state.tierDays.map((d, i) => {
+      const pct = (d / total) * 100;
+      return pct > 0 ? '<div class="comm-tier-bar-seg ' + colors[i] + '" style="width:' + pct.toFixed(2) + '%"></div>' : '';
+    }).join('');
+    const rows = state.tierDays.map((d, i) => {
+      if (d === 0) return '';
+      const amount = d * rates[i];
+      return '<div class="comm-breakdown-row">' +
+        '<span class="comm-tier-dot ' + colors[i] + '"></span>' +
+        '<span class="comm-breakdown-formula">' + rates[i] + ' ₽ × ' + d + ' ' + dayWord(d) + '</span>' +
+        '<span class="comm-breakdown-amount">' + fmtRub(amount) + '</span>' +
+        '</div>';
+    }).join('');
+    container.innerHTML = '<div class="comm-tier-bar">' + segs + '</div>' + rows;
+  }
+
+  function renderMain() {
+    const free = state.limit - state.debt;
+    setText('main-balance', fmtRub(free));
+  }
+
+  function renderBanner() {
+    const banner = document.getElementById('minpay-banner');
+    if (!banner) return;
+    banner.classList.remove('pending', 'paid', 'zero');
+    const iconWrap = document.getElementById('minpay-icon-wrap');
+
+    if (state.debt === 0) {
+      banner.classList.add('zero');
+      setText('minpay-title', 'Задолженность закрыта');
+      setHTML('minpay-text', 'Долг полностью погашен — комиссия не начисляется.');
+      setText('minpay-link', 'Подробнее');
+      if (iconWrap) {
+        iconWrap.className = 'minpay-check';
+        iconWrap.innerHTML = '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>';
+      }
+    } else if (state.minPaymentPaid) {
+      banner.classList.add('paid');
+      setText('minpay-title', 'Минимальный платёж оплачен');
+      setHTML('minpay-text', 'Спасибо! Остаток долга — <strong>' + fmtRub(state.debt) + '</strong>. Комиссия продолжает начисляться, пока долг не закрыт полностью.');
+      setText('minpay-link', 'Подробнее о задолженности →');
+      if (iconWrap) {
+        iconWrap.className = 'minpay-check';
+        iconWrap.innerHTML = '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>';
+      }
+    } else {
+      banner.classList.add('pending');
+      const min = getMinPayment();
+      setText('minpay-title', 'Минимальный платёж не оплачен');
+      setHTML('minpay-text', 'Внесите <strong>' + fmtRub(min) + '</strong> до ' + state.paymentDate + ', чтобы избежать просрочки и негативной информации в БКИ.');
+      setText('minpay-link', 'Подробнее');
+      if (iconWrap) {
+        iconWrap.className = 'minpay-icon';
+        iconWrap.innerHTML = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
+      }
+    }
+  }
+
+  function renderDebt() {
+    const tier = getTier(state.debt);
+    const today = tier ? tier.rate : 0;
+    const min = getMinPayment();
+    const threePct = state.debt > 0 ? Math.round(state.debt * 0.03) : 0;
+    const hasDebt = state.debt > 0;
+
+    // Show/hide blocks based on debt
+    const emptyEl = document.getElementById('debt-empty');
+    const minEl   = document.getElementById('debt-min-section');
+    if (emptyEl) emptyEl.style.display = hasDebt ? 'none' : 'block';
+    if (minEl)   minEl.style.display   = hasDebt ? '' : 'none';
+
+    // Header
+    setHTML('debt-amount-value', formatNum(state.debt) + ' <span>₽</span>');
+
+    // Min payment card (по скрину)
+    setText('minpay-card-amount', 'Внесите ' + fmtRub(min) + ' до ' + state.paymentDate);
+    setText('three-pct-amount', fmtRub(threePct));
+    setText('minpay-rate', tier ? (tier.rate + ' ₽ в день') : '0 ₽ в день');
+    setText('month-comm-amount', fmtRub(state.monthlyCommission));
+
+    // Commission detail modal
+    setText('comm-modal-amount', fmtRub(state.monthlyCommission));
+    setText('comm-days-1', state.tierDays[0] + ' ' + dayWord(state.tierDays[0]));
+    setText('comm-days-2', state.tierDays[1] + ' ' + dayWord(state.tierDays[1]));
+    setText('comm-days-3', state.tierDays[2] + ' ' + dayWord(state.tierDays[2]));
+
+    // Update ladder cards on tariffs screen (Screen 2) — оставляем подсветку текущей ступени
+    document.querySelectorAll('#screen-2 .ladder-card').forEach((el, i) => {
+      el.classList.toggle('active', tier !== null && i === tier.index);
+    });
+  }
+
+  function renderDemo() {
+    setText('demo-debt', fmtRub(state.debt));
+    const tier = getTier(state.debt);
+    setText('demo-rate', tier ? (tier.rate + ' ₽/день') : '—');
+    setText('demo-days', String(state.daysWithDebt));
+    setText('demo-monthly', fmtRub(state.monthlyCommission));
+    setText('demo-min', state.minPaymentPaid ? '✓ оплачен' : (state.debt === 0 ? '—' : 'не оплачен'));
+  }
+
+  // ===================== TOAST =====================
+  function showToast(html) {
+    let toast = document.querySelector('.demo-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.className = 'demo-toast';
+      document.querySelector('.phone').appendChild(toast);
+    }
+    toast.innerHTML = html;
+    toast.classList.add('show');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => toast.classList.remove('show'), 2800);
+  }
+
+  // ===================== NAVIGATION =====================
+  function showScreen(index) {
+    closeModal();
+    document.querySelectorAll('.screen').forEach((s, i) => {
+      s.classList.toggle('active', i === index);
+    });
+    document.querySelectorAll('.nav-tab').forEach((t, i) => {
+      t.classList.toggle('active', i === index);
+    });
+    const active = document.querySelector('.screen.active');
+    if (active) active.scrollTop = 0;
+  }
+  function openModal(id) {
+    const m = document.getElementById(id);
+    if (m) m.classList.add('active');
+  }
+  function closeModal() {
+    document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+  }
+  function closeModalOnBg(e) {
+    if (e.target.classList.contains('modal-overlay')) closeModal();
+  }
+  function toggleAccordion(headerEl) {
+    headerEl.parentElement.classList.toggle('open');
+  }
+  function filterHistory(btn, type) {
+    document.querySelectorAll('.history-filter').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('#history-list .history-item').forEach(item => {
+      const t = item.getAttribute('data-type');
+      item.style.display = (type === 'all' || t === type) ? '' : 'none';
+    });
+  }
+
+  // ===================== USER ACTIONS (Пополнить / Перевести / Отключить) =====================
+  function openPurchasePicker() {
+    setPurchaseAmount(30000); // дефолт
+    openModal('modal-purchase');
+  }
+
+  function setPurchaseAmount(amount) {
+    document.getElementById('purchase-amount').textContent = fmtRub(amount);
+    document.getElementById('purchase-confirm').setAttribute('data-amount', String(amount));
+    document.querySelectorAll('.purchase-amt-btn').forEach(b => {
+      b.classList.toggle('is-active', parseInt(b.getAttribute('data-amount'), 10) === amount);
+    });
+  }
+
+  function openTransferScreen() {
+    closeModal();
+    renderTransfer();
+    showScreen(4);
+  }
+
+  function setTransferAmount(type) {
+    const input = document.getElementById('transfer-input');
+    if (!input) return;
+    let amount = 0;
+    if (type === 'min')   amount = getMinPayment();
+    if (type === 'total') amount = state.debt + state.monthlyCommission;
+    if (type === 'all')   amount = state.debt + state.monthlyCommission;
+    input.value = (amount > 0 ? formatNum(amount) : '0') + ' ₽';
+  }
+
+  function formatTransferInput(input) {
+    let raw = input.value.replace(/[^\d]/g, '');
+    if (raw === '') { input.value = '0 ₽'; return; }
+    const num = parseInt(raw, 10);
+    input.value = formatNum(num) + ' ₽';
+  }
+
+  function submitTransfer() {
+    const input = document.getElementById('transfer-input');
+    if (!input) return;
+    let amount = parseInt(input.value.replace(/[^\d]/g, ''), 10) || 0;
+    if (amount <= 0) {
+      showToast('Введите сумму перевода');
+      return;
+    }
+    if (state.debt === 0 && state.monthlyCommission === 0) {
+      logOperation({ type: 'topup', title: 'Пополнение со счёта · 1369', sub: 'Между своими счетами · СБП без комиссии', amount: amount, sign: '+' });
+      renderAll();
+      showToast('Карта без долга. Перевод <strong>' + fmtRub(amount) + '</strong> зачислен на счёт.');
+      return;
+    }
+    const totalDebt = state.debt + state.monthlyCommission;
+    let applied = Math.min(amount, totalDebt);
+
+    // Сначала покрываем накопленную комиссию, потом тело долга
+    let remaining = applied;
+    const commPaid = Math.min(state.monthlyCommission, remaining);
+    state.monthlyCommission -= commPaid;
+    remaining -= commPaid;
+    if (remaining > 0) state.debt = Math.max(0, state.debt - remaining);
+
+    if (commPaid > 0 && state.monthlyCommission === 0) state.minPaymentPaid = true;
+
+    if (state.debt === 0) {
+      state.monthlyCommission = 0;
+      state.tierDays = [0, 0, 0];
+      state.daysWithDebt = 0;
+      state.minPaymentPaid = true;
+    }
+
+    logOperation({ type: 'topup', title: 'Пополнение со счёта · 1369', sub: 'Между своими счетами · СБП без комиссии', amount: applied, sign: '+' });
+
+    renderAll();
+    showScreen(0);
+    const tier = getTier(state.debt);
+    const tierMsg = state.debt === 0
+      ? 'Задолженность полностью погашена.'
+      : 'Долг ' + fmtRub(state.debt) + ', ставка <strong>' + tier.rate + ' ₽/день</strong>.';
+    showToast('Переведено <strong>' + fmtRub(applied) + '</strong>. ' + tierMsg);
+  }
+
+  function topupFromVTB() {
+    const amount = 25000;
+    if (state.debt === 0) {
+      logOperation({ type: 'topup', title: 'Пополнение со счёта в ВТБ', sub: 'Перевод', amount: amount, sign: '+' });
+      closeModal();
+      renderAll();
+      showToast('Карта без долга. Пополнение <strong>' + fmtRub(amount) + '</strong> зачислено на счёт.');
+      return;
+    }
+    const before = state.debt;
+    state.debt = Math.max(0, state.debt - amount);
+    const applied = before - state.debt;
+    if (state.debt === 0) {
+      state.monthlyCommission = 0;
+      state.tierDays = [0, 0, 0];
+      state.daysWithDebt = 0;
+      state.minPaymentPaid = true;
+    }
+    logOperation({ type: 'topup', title: 'Пополнение со счёта в ВТБ', sub: 'Перевод', amount: applied, sign: '+' });
+    closeModal();
+    showScreen(0);
+    renderAll();
+    const tier = getTier(state.debt);
+    const tierMsg = state.debt === 0
+      ? 'Задолженность полностью погашена.'
+      : 'Долг ' + fmtRub(state.debt) + ', ставка теперь <strong>' + tier.rate + ' ₽/день</strong>.';
+    showToast('Пополнение <strong>' + fmtRub(applied) + '</strong> зачислено. ' + tierMsg);
+  }
+
+  function topupExternal(bankName) {
+    closeModal();
+    showToast('Запрос на пополнение через ' + bankName + ' отправлен (демо).');
+  }
+
+  function tryDisconnect() {
+    if (state.debt > 0) {
+      alert('Чтобы отключить услугу, сначала погасите задолженность ' + fmtRub(state.debt));
+      return;
+    }
+    if (confirm('Услуга «Резервный лимит» будет отключена. Подключить снова можно в любой момент.')) {
+      showToast('Услуга «Резервный лимит» отключена');
+    }
+  }
+
+  // ===================== DEMO ACTIONS =====================
+  function initiatePurchase(amount) {
+    if (state.debt + amount > state.limit) {
+      showToast('Превышен лимит. Доступно: <strong>' + fmtRub(state.limit - state.debt) + '</strong>');
+      return;
+    }
+    document.getElementById('purchase-amount').textContent = fmtRub(amount);
+    document.getElementById('purchase-confirm').setAttribute('data-amount', String(amount));
+    openModal('modal-purchase');
+  }
+
+  function confirmPurchase() {
+    const amount = parseInt(document.getElementById('purchase-confirm').getAttribute('data-amount'), 10);
+    state.debt += amount;
+    state.minPaymentPaid = false;
+    if (state.daysWithDebt === 0) state.daysWithDebt = 1; // first day with debt
+    logOperation({ type: 'purchase', title: 'М.Видео', sub: 'Оплата картой · 8504', amount: amount, sign: '-' });
+    closeModal();
+    showScreen(0);
+    renderAll();
+    showToast('Покупка на <strong>' + fmtRub(amount) + '</strong> совершена. Задолженность: <strong>' + fmtRub(state.debt) + '</strong>');
+  }
+
+  function advanceDays(n) {
+    let accrued = 0;
+    for (let i = 0; i < n; i++) {
+      if (state.debt > 0) {
+        const tier = getTier(state.debt);
+        state.tierDays[tier.index]++;
+        state.monthlyCommission += tier.rate;
+        state.daysWithDebt++;
+        accrued += tier.rate;
+      }
+    }
+    if (accrued > 0) {
+      logOperation({
+        type: 'commission',
+        title: 'Комиссия по тарифу «Лесенка»',
+        sub: 'За ' + n + ' ' + dayWord(n) + ' с долгом',
+        amount: accrued,
+        sign: '-'
+      });
+    }
+    renderAll();
+    if (accrued > 0) {
+      showToast('Прошло ' + n + ' ' + dayWord(n) + '. Начислено комиссии: <strong>' + fmtRub(accrued) + '</strong>');
+    } else {
+      showToast('Прошло ' + n + ' ' + dayWord(n) + '. Долга нет — комиссия не начислялась.');
+    }
+  }
+
+  function payMinimum() {
+    if (state.debt === 0) { showToast('Задолженность уже закрыта.'); return; }
+    if (state.minPaymentPaid) { showToast('Минимальный платёж за этот период уже оплачен.'); return; }
+    const min = getMinPayment();
+    const threePct = Math.round(state.debt * 0.03);
+    state.debt -= threePct;
+    state.monthlyCommission = 0;
+    state.daysWithDebt = 0;
+    state.tierDays = [0, 0, 0];
+    state.minPaymentPaid = true;
+    document.getElementById('paysuccess-amount').textContent = fmtRub(min);
+    document.getElementById('paysuccess-mode').textContent = 'минимальный платёж';
+    document.getElementById('paysuccess-remaining').textContent = fmtRub(state.debt);
+    document.getElementById('paysuccess-comment').textContent = 'Комиссия продолжит начисляться, пока остаток долга не закрыт полностью.';
+    renderAll();
+    openModal('modal-paysuccess');
+  }
+
+  function payFull() {
+    if (state.debt === 0) { showToast('Задолженность уже закрыта.'); return; }
+    const amount = state.debt + state.monthlyCommission;
+    state.debt = 0;
+    state.monthlyCommission = 0;
+    state.minPaymentPaid = true;
+    state.daysWithDebt = 0;
+    state.tierDays = [0, 0, 0];
+    document.getElementById('paysuccess-amount').textContent = fmtRub(amount);
+    document.getElementById('paysuccess-mode').textContent = 'полное погашение';
+    document.getElementById('paysuccess-remaining').textContent = '0 ₽';
+    document.getElementById('paysuccess-comment').textContent = 'Комиссия перестала начисляться. Карта снова в чистом состоянии.';
+    renderAll();
+    openModal('modal-paysuccess');
+  }
+
+  function setEmpty() {
+    state.debt = 0;
+    state.daysWithDebt = 0;
+    state.monthlyCommission = 0;
+    state.tierDays = [0, 0, 0];
+    state.minPaymentPaid = false;
+    closeModal();
+    showScreen(0);
+    renderAll();
+    showToast('Карта без долга. Доступно <strong>100 000 ₽</strong>');
+  }
+
+  function resetState() {
+    state = JSON.parse(JSON.stringify(initialState));
+    closeModal();
+    showScreen(0);
+    renderAll();
+    showToast('Состояние сброшено. Карта без задолженности.');
+  }
+
+  function setActiveDebt() {
+    state = JSON.parse(JSON.stringify(activeDebtPreset));
+    closeModal();
+    showScreen(0);
+    renderAll();
+    showToast('Загружен пресет: долг <strong>49 162 ₽</strong> · 17 дней с долгом');
+  }
+
+  window.addEventListener('DOMContentLoaded', renderAll);
+</script>
+</body>
+</html>
